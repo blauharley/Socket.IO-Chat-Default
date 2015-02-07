@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Socket.IO</title>
+</head>
+
+<body>
+
+<div id="rooms"></div>
+<ul id="msg"></ul>
+
+<textarea id="my-msg"></textarea> <br/>
+<input type="button" value="Sende" onclick="var area = document.getElementById('my-msg');writeMsg(area.value);area.value='';"/>
+
+</body>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+  var socket = io.connect('http://localhost:8001');
+  var roomHash = location.hash.substr(location.hash.search(/\//)+1, location.hash.length);
+
+  socket.on('init', function(data){
+
+    if(data.acc){
+        updateRooms(data);
+    }
+    else{
+      roomHash = null;
+      while(!roomHash){
+        roomHash = prompt('Bitte Hash eingeben: ');
+      }
+
+      if(roomHash){
+        socket.emit('init', { hash: roomHash });
+        location.hash= '/' +roomHash;
+      }
+    }
+
+  });
+
+  socket.on('notify', updateRooms);
+
+  socket.on(roomHash, function (data) {
+
+    console.log(data);
+    document.getElementById('msg').innerHTML += '<li>'+data.msg+'</li>';
+
+  });
+
+  socket.emit('init', { hash: roomHash });
+
+  function updateRooms(data){
+
+    console.log(data);
+
+    var list = '<ul>';
+
+    for(var i=0; i <data.rooms.length; i++){
+       var room = data.rooms[i];
+       var roomColor = room.hash == roomHash ? 'green' : 'grey';
+       list += '<li style="background-color:'+roomColor+'">Raum: '+room.hash+', Anzahl: '+room.num+'</li>';
+    }
+
+    list += '</ul>';
+    document.getElementById('rooms').innerHTML = list;
+
+  }
+
+  function writeMsg(msg){
+
+    document.getElementById('msg').innerHTML += '<li>'+msg+'</li>';
+    socket.emit(roomHash,{hash:roomHash,msg: msg});
+
+  }
+
+</script>
+
+</html>
