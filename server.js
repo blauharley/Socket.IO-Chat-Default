@@ -37,6 +37,7 @@ io.on('connection', function (socket) {
     if(!room){
       room = {};
       room.clients = [];
+      room.history = [];
       rooms[roomhash] = room;
     }
 
@@ -47,8 +48,9 @@ io.on('connection', function (socket) {
 
        socket.on(roomhash, function(data){
          console.log(data);
-         broadcastMsgByRoomHash(rooms, this, roomhash, data);
-
+         var room = rooms[data.hash];
+         room.history.push(data.msg);
+         broadcastMsgByRoomHash(rooms, this, data.hash, data);
        });
 
        room.clients.push(this);
@@ -59,16 +61,7 @@ io.on('connection', function (socket) {
 
     }
 
-    socket.emit('init', { rooms: getUpdateRooms(rooms), acc: guestAccepted  });
-
-    /*
-    exec('touch my-file'+counter+'.txt', function (error, stdout, stderr) {
-
-        console.log(error);
-        counter++;
-
-    });
-    */
+    socket.emit('init', { rooms: getUpdateRooms(rooms), acc: guestAccepted, history: room.history  });
 
   });
 
@@ -78,6 +71,9 @@ io.on('connection', function (socket) {
     if(room){
         room.clients.splice(room.clients.indexOf(this),1);
         console.log(room.clients.length);
+        if(!room.clients.length){
+            delete rooms[this._roomHash];
+        }
         broadcastMsgToAll(rooms, this, 'notify', {}, true);
     }
 
@@ -111,7 +107,7 @@ function broadcastMsgByRoomHash(rooms,sentClient,event, data, roomUpdate){
         if(sentClient !== client){
 
           if(roomUpdate){
-            client.emit(event, { rooms: getUpdateRooms(rooms) });
+            client.emit(event, { rooms: getUpdateRooms(rooms), history: room.history });
           }
           else{
             client.emit(event, { msg: msg });

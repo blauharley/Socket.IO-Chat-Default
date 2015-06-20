@@ -21,22 +21,17 @@
 <script>
 
   var socket = io.connect('http://localhost:8001');
-  var roomHash = location.hash.substr(location.hash.search(/\//)+1, location.hash.length);
+  var roomHash = location.href.substr(location.href.lastIndexOf('/')+1, location.href.length);
 
   socket.on('init', function(data){
 
     if(data.acc){
-        updateRooms(data);
+      updateRooms(data);
     }
     else{
-      roomHash = null;
-      while(!roomHash){
-        roomHash = prompt('Bitte Hash eingeben: ');
-      }
-
+      prompUserEnteringHash();
       if(roomHash){
         socket.emit('init', { hash: roomHash });
-        location.hash= '/' +roomHash;
       }
     }
 
@@ -45,37 +40,54 @@
   socket.on('notify', updateRooms);
 
   socket.on(roomHash, function (data) {
-
-    console.log(data);
-    document.getElementById('msg').innerHTML += '<li>'+data.msg+'</li>';
-
+      console.log(data);
+      document.getElementById('msg').innerHTML += '<li>'+data.msg+'</li>';
   });
-
-  socket.emit('init', { hash: roomHash });
 
   function updateRooms(data){
 
-    console.log(data);
+      console.log(data);
 
-    var list = '<ul>';
+      var list = '<ul>';
 
-    for(var i=0; i <data.rooms.length; i++){
-       var room = data.rooms[i];
-       var roomColor = room.hash == roomHash ? 'green' : 'grey';
-       list += '<li style="background-color:'+roomColor+'">Raum: '+room.hash+', Anzahl: '+room.num+'</li>';
-    }
+      for(var i=0; i <data.rooms.length; i++){
+          var room = data.rooms[i];
+          var roomColor = room.hash == roomHash ? 'green' : 'grey';
+          list += '<li style="background-color:'+roomColor+'">Raum: '+room.hash+', Anzahl: '+room.num+'</li>';
+      }
 
-    list += '</ul>';
-    document.getElementById('rooms').innerHTML = list;
+      list += '</ul>';
+      document.getElementById('rooms').innerHTML = list;
 
+      if(data.history){
+          var history = "";
+          for(var h=0; h<data.history.length; h++){
+              history += '<li>'+data.history[h]+'</li>';
+          }
+          document.getElementById('msg').innerHTML = history;
+      }
+      
   }
 
   function writeMsg(msg){
-
-    document.getElementById('msg').innerHTML += '<li>'+msg+'</li>';
-    socket.emit(roomHash,{hash:roomHash,msg: msg});
-
+      document.getElementById('msg').innerHTML += '<li>'+msg+'</li>';
+      socket.emit(roomHash,{hash:roomHash,msg: msg});
   }
+
+  function prompUserEnteringHash(){
+      roomHash = null;
+      while(!roomHash){
+          roomHash = prompt('Bitte Hash eingeben: ');
+      }
+      location.hash= '/' +roomHash;
+  }
+
+  // start app
+  if(!roomHash){
+      prompUserEnteringHash();
+  }
+
+  socket.emit('init', { hash: roomHash });
 
 </script>
 
