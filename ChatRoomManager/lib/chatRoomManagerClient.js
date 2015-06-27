@@ -1,14 +1,12 @@
 /*
     this package requires socket.io to work properly
  */
-function ChatRoomManager(opts){
+function ChatRoomManagerClient(opts){
 
-    // singleton
-    if(this._instance){
-        return this;
-    }
-
-    this._instance = this;
+    var singleton = this;
+    ChatRoomManagerClient = function(){
+        return singleton;
+    };
 
     this._roomHash = opts.roomHash || "";
 
@@ -20,7 +18,7 @@ function ChatRoomManager(opts){
     this._hashHandler = opts.hashHandler;
 
     if(!this._roomHash && !this._hashHandler){
-        throw new Error("ChatRoomManager Error: neither roomHash nor roomHandler provided!");
+        throw new Error("ChatRoomManagerClient Error: neither roomHash nor roomHandler provided!");
     }
 
     this._socket.on('init', function(data){
@@ -44,25 +42,25 @@ function ChatRoomManager(opts){
 
 }
 
-ChatRoomManager.prototype.updateRoomArea = function(handler){
+ChatRoomManagerClient.prototype.updateRoomArea = function(handler){
     this._updateRAHandler = handler;
     this._socket.on('notify', function(data){
         this._updateRAHandler(data,this._roomArea);
     }.bind(this));
 };
 
-ChatRoomManager.prototype.updateHistory = function(handler){
+ChatRoomManagerClient.prototype.updateHistory = function(handler){
     this._updateHHandler = handler;
 };
 
-ChatRoomManager.prototype.validHash = function(handler){
+ChatRoomManagerClient.prototype.validHash = function(handler){
     this._validHashHandler = handler;
 };
 
-ChatRoomManager.prototype.receive = function(handler){
+ChatRoomManagerClient.prototype.receive = function(handler){
     this._receiveHandler = handler;
 };
 
-ChatRoomManager.prototype.messageTo = function(msg){
+ChatRoomManagerClient.prototype.messageTo = function(msg){
     this._socket.emit(this._roomHash,{hash:this._roomHash,msg: msg});
 };

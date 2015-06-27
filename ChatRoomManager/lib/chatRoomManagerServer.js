@@ -1,5 +1,10 @@
 function ChatRoomManagerServer(opts){
 
+    var singleton = this;
+    ChatRoomManagerServer = function(){
+        return singleton;
+    };
+
     this._rooms = {};
     this._maxGuests = opts.maxGuests || 5;
 

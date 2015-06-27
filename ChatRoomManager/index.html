@@ -21,7 +21,8 @@
 
 </body>
 <script src="/socket.io/socket.io.js"></script>
-<!-- @import chatroommamanger client lib -->
+<!-- @import chatroommamanger client lib via localhost -->
+<!-- <script src="http://localhost:YOUR_PORT/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>-->
 <script src="http://localhost:89/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>
 <script>
 
@@ -30,7 +31,7 @@
     // @info: get hash via location object for instance
     var currenthash = location.href.substr(location.href.lastIndexOf('/')+1, location.href.length);
 
-    var manager = new ChatRoomManager({
+    var manager = new ChatRoomManagerClient({
         localhost: "http://localhost:8001",
         roomArea: "#rooms",
         msgArea: "#msg",
@@ -50,7 +51,7 @@
 
     // @info: when there is a message sent by a another guest within same room
     manager.receive(function(message, msgArea){
-        msgArea.innerHTML += "<li>" + message + "</li>";
+        msgArea.innerHTML += "<li>" + message.val + "</li>";
     });
 
     // @info: when there is a update concerning available rooms or when currently connected
@@ -73,7 +74,7 @@
     manager.updateHistory(function(history, msgArea){
         var string = "";
         for(var h=0; h<history.length; h++){
-            string += '<li>'+history[h]+'</li>';
+            string += '<li>'+history[h].val+'</li>';
         }
         msgArea.innerHTML = string;
     });
@@ -82,7 +83,7 @@
     var textarea = document.getElementById('my-msg');
     document.getElementById('sentButton').addEventListener('click', function(){
         // send a message to other clients within a certain room
-        manager.messageTo(textarea.value);
+        manager.messageTo({val:textarea.value});
         document.getElementById('msg').innerHTML += '<li>'+textarea.value+'</li>';
         textarea.value = "";
     });
