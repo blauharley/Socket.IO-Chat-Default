@@ -4,7 +4,7 @@
   <i>RoomHashes</i> are used to handle chat rooms and clients. This package enables users to pass/generate/handle <i>RoomHashes</i> respectively chat rooms in a way that fulfils their project requirements best.
 </p>
 
-<h3>Constructor</h3>
+<h3>Constructors</h3>
 
 <h2>Server-Constructor</h2>
 
@@ -103,6 +103,8 @@
   <p>@return undefined</p>
 
 </blockquote>
+
+<h3>Examples can be found within index.html</h3>
 
 <h3>Supported Browsers:</h3>
 
