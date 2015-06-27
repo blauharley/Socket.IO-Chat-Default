@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>ChatRoomManager IO</title>
+</head>
+
+<body>
+
+<h2>
+    ChatRoomManager can manage chat rooms containing a certain amount of clients. Furthermore it delivers info
+    about currently occurred room alternations concerning number of clients and closing rooms.
+</h2>
+
+<div id="rooms"></div>
+<ul id="msg"></ul>
+
+<textarea id="my-msg"></textarea> <br/>
+<input type="button" value="send" id="sentButton"/>
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<!-- @import chatroommamanger client lib -->
+<script src="http://localhost:89/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>
+<script>
+
+    // @hash validation: a roomHash stands for a certain room. it must be unique and number of guests must not exceed max number.
+
+    // @info: get hash via location object for instance
+    var currenthash = location.href.substr(location.href.lastIndexOf('/')+1, location.href.length);
+
+    var manager = new ChatRoomManager({
+        localhost: "http://localhost:8001",
+        roomArea: "#rooms",
+        msgArea: "#msg",
+        roomHash: currenthash,
+        // @info: hashHandler is called if provided roomHash is not valid(see @hash validation)
+        //        you can define your own logic to get your own valid hash here
+        hashHandler: function(){
+            currenthash = prompt("Enter your Hash!");
+            return currenthash;
+        }
+    });
+
+    // @info: when it is proven that this hash is valid(see @hash validation)
+    manager.validHash(function(hash){
+        location.hash= '/' +hash;
+    });
+
+    // @info: when there is a message sent by a another guest within same room
+    manager.receive(function(message, msgArea){
+        msgArea.innerHTML += "<li>" + message + "</li>";
+    });
+
+    // @info: when there is a update concerning available rooms or when currently connected
+    manager.updateRoomArea(function(data, roomArea){
+
+        var list = '<ul>';
+
+        for(var i=0; i <data.rooms.length; i++){
+            var room = data.rooms[i];
+            var roomColor = room.hash == currenthash ? 'green' : 'grey';
+            list += '<li style="background-color:'+roomColor+'">Raum: '+room.hash+', Anzahl: '+room.num+'</li>';
+        }
+
+        list += '</ul>';
+        roomArea.innerHTML = list;
+
+    });
+
+    // @info: when currently connected get all written messages since room exists
+    manager.updateHistory(function(history, msgArea){
+        var string = "";
+        for(var h=0; h<history.length; h++){
+            string += '<li>'+history[h]+'</li>';
+        }
+        msgArea.innerHTML = string;
+    });
+
+    // @info: example of how you can send a message that can only be seen within your room
+    var textarea = document.getElementById('my-msg');
+    document.getElementById('sentButton').addEventListener('click', function(){
+        // send a message to other clients within a certain room
+        manager.messageTo(textarea.value);
+        document.getElementById('msg').innerHTML += '<li>'+textarea.value+'</li>';
+        textarea.value = "";
+    });
+
+</script>
+
+</html>
