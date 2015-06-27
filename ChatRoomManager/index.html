@@ -20,10 +20,11 @@
 <input type="button" value="send" id="sentButton"/>
 
 </body>
+<!-- @info socket.io lib is required -->
 <script src="/socket.io/socket.io.js"></script>
 <!-- @import chatroommamanger client lib via localhost -->
-<!-- <script src="http://localhost:YOUR_PORT/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>-->
-<script src="http://localhost:89/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>
+<!-- @info chatroommamanger client lib can be put on any accessible URL locally or remotely -->
+<script src="http://localhost:YOUR_PORT/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>
 <script>
 
     // @hash validation: a roomHash stands for a certain room. it must be unique and number of guests must not exceed max number.
