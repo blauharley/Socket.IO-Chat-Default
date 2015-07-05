@@ -15,6 +15,8 @@ function ChatRoomManagerClient(opts){
 
     this._socket = io.connect(opts.localhost);
 
+    this._clientName = opts.clientName || "";
+
     this._hashHandler = opts.hashHandler;
 
     if(!this._roomHash && !this._hashHandler){
@@ -25,7 +27,7 @@ function ChatRoomManagerClient(opts){
 
         if(data.acc){
             this._socket.on(this._roomHash, function (data) {
-                this._receiveHandler(data.msg,this._msgArea);
+                this._receiveHandler(data,this._msgArea);
             }.bind(this));
             if(this._updateRAHandler)this._updateRAHandler(data,this._roomArea);
             if(this._updateHHandler)this._updateHHandler(data.history,this._msgArea);
@@ -62,5 +64,5 @@ ChatRoomManagerClient.prototype.receive = function(handler){
 };
 
 ChatRoomManagerClient.prototype.messageTo = function(msg){
-    this._socket.emit(this._roomHash,{hash:this._roomHash,msg: msg});
+    this._socket.emit(this._roomHash,{ hash:this._roomHash, msg: msg, clientName: this._clientName });
 };

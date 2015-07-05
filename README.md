@@ -1,7 +1,7 @@
 <h2>ChatRoomManager</h2>
 <p>
   It's both a NodeJS and JavaScript Class that can manage chat rooms. This package requires <a href="http://socket.io/">Socket.IO</a> to work properly.
-  <i>RoomHashes</i> are used to handle chat rooms and clients. This package enables users to pass/generate/handle <i>RoomHashes</i> respectively chat rooms in a way that fulfils their project requirements best.
+  <i>RoomHashes</i> are used to handle chat rooms and clients. This package enables users to handle chat rooms in a way that fulfils all project requirements best.
 </p>
 
 <h3>Constructors</h3>
@@ -35,7 +35,8 @@
   <p>
 	@param <b><i>opts</i></b> must be an Object to be given to adjust some Preferences:
 	<ul>
-         <li><b><i>localhost</i></b> must be an string(URL) that references to a server instance of ChatRoomManagerServer that runs on socket.io.</li>
+         <li><b><i>localhost</i></b> must be a string(URL) that references to a server instance of ChatRoomManagerServer that runs on socket.io.</li>
+         <li><b><i>clientName</i></b> must be a string that holds the name of current client.</li>
 	 <li><i>roomHash</i> must be an string so that a client can be attributed to a certain room. This option can be omitted but <i>hashHandler</i> must be passed instead to generate a <i>roomHash</i>.</li>
          <li><i>hashHandler</i> must be a <i>Function</i> that is used to generate a <i>roomHash</i>. Within this <i>Function</i> it is left to a programmer to implement logic that fulfils their project requirements of how to gain a certain <i>roomHash</i> but keep in mind that the passed <i>Function</i> has to <b>return</b> a currently generated <i>roomHash</i></li>
          <li><i>roomArea</i> must be an string that references to a DOM element that can be used within the method <i>updateRoomArea</i>.</li>
@@ -53,9 +54,9 @@
 
 <blockquote>
 
-  <p><b>ChatRoomManagerClient.prototype.receive( in message:[Object||String], in msgArea:DOMElement ) : undefined</b></p>
+  <p><b>ChatRoomManagerClient.prototype.receive( in message:Object, in msgArea:DOMElement ) : undefined</b></p>
   <p>
-     <p>@param <b><i>message</i></b> can be an <i>Object</i> or <i>String</i> that contains a message being written by another client.</p>
+     <p>@param <b><i>message</i></b> is an <i>Object</i> that contains a message being written by another client and their <i>clientName</i>.</p>
      <p>@param <b><i>msgArea</i></b> is a <i>DOMElement</i> that can be updated by ordinary DOM query methods. When no <i>msgArea</i> options is passed into the constructor parameter <i>msgArea</i> remains <i>undefined</i>.</p>
   </p>
 
@@ -63,7 +64,7 @@
 
 </blockquote>
 
-<p>Update DOM elements when there is an update concerning new rooms/clients or closing rooms.<p>
+<p>Update DOM elements when there is an update concerning new rooms/clients or closing rooms. This method does not provide any concrete informations about what other clients have written.<p>
 
 <blockquote>
 
@@ -83,7 +84,7 @@
 
   <p><b>ChatRoomManagerClient.prototype.updateHistory( in history:Array, in msgArea:DOMElement ) : undefined</b></p>
   <p>
-     <p>@param <b><i>history</i></b> is an <i>Array</i> that contains all written messages since room exists.</p>
+     <p>@param <b><i>history</i></b> is an <i>Array</i> that contains all written messages combined with <i>clientNames</i> as <i>Object</i> since room exists.</p>
      <p>@param <b><i>roomArea</i></b> is a <i>DOMElement</i> that can be updated by ordinary DOM query methods. When no <i>msgArea</i> options is passed into the constructor parameter <i>msgArea</i> remains <i>undefined</i>.</p>
   </p>
 

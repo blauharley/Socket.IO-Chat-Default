@@ -28,6 +28,7 @@ function ChatRoomManagerServer(opts){
                 return;
             }
 
+            var clientName = data.clientName;
             var room = instance._rooms[roomhash];
 
             if(!room){
@@ -41,10 +42,11 @@ function ChatRoomManagerServer(opts){
 
                 this.join(roomhash);
                 socket._roomHash = roomhash;
+                socket._clientName = clientName;
 
                 socket.on(roomhash, function(data){
                     var room = instance._rooms[data.hash];
-                    room.history.push(data.msg);
+                    room.history.push({ message:data.msg, clientName:data.clientName });
                     instance._broadcastMsgByRoomHash(this, data.hash, data);
                 });
 
@@ -102,6 +104,7 @@ ChatRoomManagerServer.prototype._broadcastMsgByRoomHash = function(sentClient,ev
 
     var instance = this;
     var room = instance._rooms[roomhash];
+    var sentClientName = data.clientName;
 
     room.clients.forEach(function(client){
         if(sentClient !== client){
@@ -110,7 +113,7 @@ ChatRoomManagerServer.prototype._broadcastMsgByRoomHash = function(sentClient,ev
                 client.emit(event, { rooms: instance._getUpdateRooms(), history: room.history });
             }
             else{
-                client.emit(event, { msg: msg });
+                client.emit(event, { message: msg, clientName: sentClientName });
             }
 
         }
@@ -134,7 +137,7 @@ ChatRoomManagerServer.prototype._broadcastMsgToAll = function(sentClient,event, 
                     client.emit(event, { rooms: roomInfo });
                 }
                 else{
-                    client.emit(event, { msg: msg });
+                    client.emit(event, { message: msg });
                 }
 
             }

@@ -3,13 +3,13 @@
 <html>
 
 <head>
-  <title>ChatRoomManager IO</title>
+  <title>ChatRoomManager Socket.IO</title>
 </head>
 
 <body>
 
 <h2>
-    ChatRoomManager can manage chat rooms containing a certain amount of clients. Furthermore it delivers info
+    ChatRoomManager can manage chat rooms containing a certain number of clients. Furthermore it delivers info
     about currently occurred room alternations concerning number of clients and closing rooms.
 </h2>
 
@@ -24,15 +24,18 @@
 <script src="/socket.io/socket.io.js"></script>
 <!-- @import chatroommamanger client lib via localhost -->
 <!-- @info chatroommamanger client lib can be put on any accessible URL locally or remotely -->
-<script src="http://YOUR_HOST:YOUR_PORT/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>
+<script src="http://localhost:89/Socket.IO-Chat-Default/ChatRoomManager/lib/chatRoomManagerClient.js"></script>
 <script>
 
     // @hash validation: a roomHash stands for a certain room. it must be unique and number of guests must not exceed max number.
 
     // @info: get hash via location object for instance
     var currenthash = location.href.substr(location.href.lastIndexOf('/')+1, location.href.length);
+    var randomClientName = "User"+(((new Date()).getTime()%100)+1);
 
     var manager = new ChatRoomManagerClient({
+        clientName: randomClientName,
+        // @info: define URL where you socket.io server runs
         localhost: "http://localhost:8001",
         roomArea: "#rooms",
         msgArea: "#msg",
@@ -45,17 +48,17 @@
         }
     });
 
-    // @info: when it is proven that this hash is valid(see @hash validation)
+    // @info: it's called when it is proven that this hash is valid(see @hash validation)
     manager.validHash(function(hash){
         location.hash= '/' +hash;
     });
 
     // @info: when there is a message sent by a another guest within same room
-    manager.receive(function(message, msgArea){
-        msgArea.innerHTML += "<li>" + message.val + "</li>";
+    manager.receive(function(data, msgArea){
+        msgArea.innerHTML += "<li>" + data.clientName + " : " + data.message.val + "</li>";
     });
 
-    // @info: when there is a update concerning available rooms or when currently connected
+    // @info: it's called when there is a update concerning available rooms or when currently connected
     manager.updateRoomArea(function(data, roomArea){
 
         var list = '<ul>';
@@ -75,7 +78,8 @@
     manager.updateHistory(function(history, msgArea){
         var string = "";
         for(var h=0; h<history.length; h++){
-            string += '<li>'+history[h].val+'</li>';
+            var histEntry = history[h];
+            string += '<li>'+ histEntry.clientName + ' : ' + histEntry.message.val + '</li>';
         }
         msgArea.innerHTML = string;
     });
@@ -85,7 +89,7 @@
     document.getElementById('sentButton').addEventListener('click', function(){
         // send a message to other clients within a certain room
         manager.messageTo({val:textarea.value});
-        document.getElementById('msg').innerHTML += '<li>'+textarea.value+'</li>';
+        document.getElementById('msg').innerHTML += '<li>'+ randomClientName +' : ' +textarea.value+'</li>';
         textarea.value = "";
     });
 
