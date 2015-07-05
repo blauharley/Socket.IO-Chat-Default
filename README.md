@@ -50,6 +50,19 @@
 
 <h3>Public Methods</h3>
 
+<p>Send messages that are only visible within same room.<p>
+
+<blockquote>
+
+  <p><b>ChatRoomManagerClient.prototype.messageTo( in message:Object ) : undefined</b></p>
+  <p>
+     <p>@param <b><i>message</i></b> is an <i>Object</i> that a current user wants to send within same room.</p>
+  </p>
+
+  <p>@return undefined</p>
+
+</blockquote>
+
 <p>Receive messages that are being sent by other clients within same room.<p>
 
 <blockquote>
